@@ -400,6 +400,8 @@
                 
                 // Mostrar la pantalla de retardo
                 redirectOverlay.classList.remove('hidden');
+                redirectOverlay.classList.add('flex'); // Es crucial agregar flex para que se centre bien
+                
                 // Forzar un reflow para que la transición CSS de opacidad actúe
                 void redirectOverlay.offsetWidth;
                 redirectOverlay.classList.remove('opacity-0');
@@ -421,11 +423,12 @@
                         setTimeout(() => {
                             redirectOverlay.classList.add('opacity-0');
                             setTimeout(() => {
+                                redirectOverlay.classList.remove('flex');
                                 redirectOverlay.classList.add('hidden');
                             }, 300); // 300ms de transición
                         }, 500); // Pequeño delay de gracia mientras cambia de pestaña
                     }
-                }, 1000); // Intervalo de 1 segundo
+                }, 1500); // Intervalo de 1.5 segundos, más lento
             });
         });
     </script>
