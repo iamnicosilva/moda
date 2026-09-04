@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>aimoda - La experiencia de moda</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter (sans-serif) y Playfair Display (serif) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+        }
+        /* Clase para fuentes Serif delicadas */
+        .font-serif-custom {
+            font-family: 'Playfair Display', serif;
+        }
+        /* Ocultar scrollbar para un carrusel limpio */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="text-gray-900 antialiased min-h-screen flex flex-col">
+    
+    <!-- Top Banner (Estilo Telier App) -->
+    <div class="bg-[#C16642] text-white text-xs md:text-sm py-2 px-4 flex justify-center items-center gap-3">
+        <span class="font-light tracking-wide">Descubre la experiencia completa.</span>
+        <span class="bg-white text-[#C16642] px-3 py-1 rounded-full text-[10px] md:text-xs font-bold cursor-pointer uppercase tracking-wider hover:bg-gray-100 transition-colors">Descarga la App!</span>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="bg-white border-b border-gray-100 sticky top-0 z-50">
+        <div class="max-w-[1400px] mx-auto px-4 sm:px-6">
+            <div class="flex flex-col md:flex-row justify-between items-center py-3 md:py-0 md:h-[72px] gap-3 md:gap-8">
+                
+                <!-- Logo + Secciones (Mobile & Desktop) -->
+                <div class="flex items-center justify-between w-full md:w-auto">
+                    <!-- Logo y links (Mujer | Hombre) -->
+                    <div class="flex-shrink-0 cursor-pointer flex items-baseline gap-6" onclick="resetView()">
+                        <span class="text-3xl font-serif-custom text-[#8B4513] tracking-tight">aimoda</span>
+                        <div class="hidden md:flex items-center text-xs font-semibold text-gray-800 gap-2 uppercase tracking-widest">
+                            <span class="cursor-pointer hover:text-[#8B4513] transition-colors">Mujer</span> 
+                            <span class="text-gray-300 font-normal">|</span> 
+                            <span class="cursor-pointer text-gray-400 hover:text-gray-800 transition-colors">Hombre</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Mobile Hamburger -->
+                    <div class="md:hidden flex items-center gap-3">
+                        <i data-lucide="menu" class="w-6 h-6 text-gray-700"></i>
+                    </div>
+                </div>
+                
+                <!-- Buscador (Integrado en el Header) -->
+                <div class="w-full md:flex-1 md:max-w-2xl relative">
+                    <form id="searchForm" class="relative group">
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            autocomplete="off"
+                            class="block w-full pl-5 pr-12 py-2.5 rounded-full border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#8B4513] focus:border-[#8B4513] text-sm transition-all" 
+                            placeholder="Busca looks o prendas"
+                        >
+                        <button type="submit" class="absolute inset-y-0 right-0 pr-4 flex items-center">
+                            <i data-lucide="search" class="w-4 h-4 text-gray-400 group-focus-within:text-[#8B4513]"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Botones Derecha (Desktop) -->
+                <div class="hidden md:flex items-center gap-6 text-xs font-semibold text-gray-700 uppercase tracking-widest">
+                    <span class="cursor-pointer hover:text-[#8B4513] transition-colors">Empresas</span>
+                    <span class="cursor-pointer hover:text-[#8B4513] transition-colors">Favoritos</span>
+                    <span class="cursor-pointer flex items-center gap-1 hover:text-[#8B4513] transition-colors">AR AR <i data-lucide="chevron-down" class="w-3 h-3"></i></span>
+                    <button class="bg-[#C16642] hover:bg-[#8B4513] text-white px-6 py-2.5 rounded-full transition-colors capitalize text-sm font-normal tracking-normal">Inicia Sesion</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Botón Flotante WhatsApp -->
+    <a href="#" class="fixed bottom-6 right-6 bg-[#25D366] text-white p-3.5 rounded-full shadow-lg hover:scale-110 transition-transform z-50 flex items-center justify-center">
+        <i data-lucide="message-circle" class="w-6 h-6"></i>
+    </a>
+
+    <!-- Estado de Carga (Buscando) -->
+    <div id="searchStatus" class="hidden py-24 flex-col items-center justify-center flex-grow">
+        <i data-lucide="loader-2" class="w-8 h-8 animate-spin text-[#C16642] mb-4"></i>
+        <p class="text-gray-500 font-light tracking-widest text-sm uppercase">Buscando prendas...</p>
+    </div>
+
+    <!-- Contenido Principal -->
+    <main class="flex-grow w-full">
+        
+        <!-- Vista por Defecto (Inicio) -->
+        <div id="defaultContent" class="fade-in">
+            
+            <!-- Hero Banners (Estilo Grilla Telier) -->
+            <div class="w-full flex overflow-x-auto snap-x snap-mandatory hide-scrollbar h-[55vh] md:h-[70vh] mb-16">
+                <!-- Imagen 1 (Izquierda) -->
+                <div class="snap-center shrink-0 w-[85vw] md:w-1/3 h-full relative border-r border-white">
+                    <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover object-center" alt="Look Casual">
+                </div>
+                
+                <!-- Imagen 2 (Centro con Texto) -->
+                <div class="snap-center shrink-0 w-[85vw] md:w-1/3 h-full relative border-r border-white flex items-center justify-center group cursor-pointer overflow-hidden bg-black">
+                    <img src="https://images.unsplash.com/photo-1591561954557-26941169b49e?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover absolute inset-0 opacity-70 group-hover:scale-105 transition-transform duration-700" alt="Bolsos y Accesorios">
+                    <div class="relative z-10 text-center text-white px-4">
+                        <h2 class="text-2xl md:text-4xl font-light tracking-[0.15em] mb-4 font-sans">PARA DÍA Y NOCHE</h2>
+                        <p class="text-lg md:text-xl font-light tracking-wider mb-8 font-serif-custom italic">Full Collection</p>
+                        <span class="inline-block border-b border-white pb-1 text-xs md:text-sm uppercase tracking-[0.2em] hover:text-gray-300 transition-colors">Descubrir</span>
+                    </div>
+                </div>
+                
+                <!-- Imagen 3 (Derecha) -->
+                <div class="snap-center shrink-0 w-[85vw] md:w-1/3 h-full relative">
+                    <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover object-top" alt="Look Elegante">
+                </div>
+            </div>
+
+            <!-- Lema Principal -->
+            <div class="text-center mt-10 mb-14 px-4">
+                <h1 class="text-2xl md:text-3xl lg:text-4xl font-serif-custom text-gray-900 tracking-wide italic">Toda la moda argentina en un solo lugar</h1>
+            </div>
+
+            <div class="max-w-[1400px] mx-auto px-4 sm:px-6 mb-16">
+                
+                <!-- Carrusel Productos Destacados (Letra Delicada) -->
+                <div class="mb-24">
+                    <div class="flex items-center justify-between mb-8">
+                        <h3 class="text-sm md:text-base font-light tracking-[0.25em] text-gray-900 uppercase">Productos Destacados</h3>
+                        <a href="#" class="text-xs text-gray-500 uppercase tracking-widest hover:text-gray-900 hidden md:block">Ver todos</a>
+                    </div>
+                    
+                    <div class="flex overflow-x-auto gap-4 md:gap-8 pb-8 snap-x snap-mandatory hide-scrollbar">
+                        
+                        <!-- Producto 1 (Sale) -->
+                        <div class="snap-start shrink-0 w-44 md:w-64 group cursor-pointer flex flex-col">
+                            <div class="relative aspect-[3/4] overflow-hidden mb-4 bg-gray-50">
+                                <img src="https://images.unsplash.com/photo-1509319117193-57bab727e09d?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover object-top mix-blend-multiply group-hover:scale-105 transition-transform duration-700">
+                                <div class="absolute top-2 left-2 bg-black text-white text-[9px] uppercase px-2 py-0.5 font-semibold tracking-widest">Sale</div>
+                            </div>
+                            <div class="text-center flex flex-col flex-grow">
+                                <p class="text-[9px] text-gray-400 uppercase tracking-[0.2em] mb-1.5">Vanka</p>
+                                <h4 class="text-xs md:text-sm font-light text-gray-800 mb-2 leading-relaxed">Top asimétrico negro</h4>
+                                <p class="text-sm md:text-base font-medium text-gray-900 mt-auto"><span class="line-through text-gray-400 mr-2 text-xs font-light">$35.000</span>$28.000</p>
+                            </div>
+                        </div>
+
+                        <!-- Producto 2 -->
+                        <div class="snap-start shrink-0 w-44 md:w-64 group cursor-pointer flex flex-col">
+                            <div class="relative aspect-[3/4] overflow-hidden mb-4 bg-gray-50">
+                                <img src="https://images.unsplash.com/photo-1539533113208-f6df8cc8b543?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover object-top mix-blend-multiply group-hover:scale-105 transition-transform duration-700">
+                            </div>
+                            <div class="text-center flex flex-col flex-grow">
+                                <p class="text-[9px] text-gray-400 uppercase tracking-[0.2em] mb-1.5">Olivia</p>
+                                <h4 class="text-xs md:text-sm font-light text-gray-800 mb-2 leading-relaxed">Abrigo de lana minimal</h4>
+                                <p class="text-sm md:text-base font-medium text-gray-900 mt-auto">$120.000</p>
+                            </div>
+                        </div>
+
+                        <!-- Producto 3 -->
+                        <div class="snap-start shrink-0 w-44 md:w-64 group cursor-pointer flex flex-col">
+                            <div class="relative aspect-[3/4] overflow-hidden mb-4 bg-gray-50">
+                                <img src="https://images.unsplash.com/photo-1584273143981-41c073dfe8f8?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover object-top mix-blend-multiply group-hover:scale-105 transition-transform duration-700">
+                            </div>
+                            <div class="text-center flex flex-col flex-grow">
+                                <p class="text-[9px] text-gray-400 uppercase tracking-[0.2em] mb-1.5">Polanola</p>
+                                <h4 class="text-xs md:text-sm font-light text-gray-800 mb-2 leading-relaxed">Jeans wide leg desgastado</h4>
+                                <p class="text-sm md:text-base font-medium text-gray-900 mt-auto">$45.000</p>
+                            </div>
+                        </div>
+
+                        <!-- Producto 4 -->
+                        <div class="snap-start shrink-0 w-44 md:w-64 group cursor-pointer flex flex-col">
+                            <div class="relative aspect-[3/4] overflow-hidden mb-4 bg-gray-50">
+                                <img src="https://images.unsplash.com/photo-1618244972963-dbee1a7edc95?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover object-top mix-blend-multiply group-hover:scale-105 transition-transform duration-700">
+                            </div>
+                            <div class="text-center flex flex-col flex-grow">
+                                <p class="text-[9px] text-gray-400 uppercase tracking-[0.2em] mb-1.5">Bullben</p>
+                                <h4 class="text-xs md:text-sm font-light text-gray-800 mb-2 leading-relaxed">Camisa oversize lino</h4>
+                                <p class="text-sm md:text-base font-medium text-gray-900 mt-auto">$32.000</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Producto 5 -->
+                        <div class="snap-start shrink-0 w-44 md:w-64 group cursor-pointer flex flex-col">
+                            <div class="relative aspect-[3/4] overflow-hidden mb-4 bg-gray-50">
+                                <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover object-top mix-blend-multiply group-hover:scale-105 transition-transform duration-700">
+                            </div>
+                            <div class="text-center flex flex-col flex-grow">
+                                <p class="text-[9px] text-gray-400 uppercase tracking-[0.2em] mb-1.5">Nomade</p>
+                                <h4 class="text-xs md:text-sm font-light text-gray-800 mb-2 leading-relaxed">Vestido midi seda negra</h4>
+                                <p class="text-sm md:text-base font-medium text-gray-900 mt-auto">$55.000</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Marcas Destacadas -->
+                <div class="border-t border-gray-100 pt-16 pb-8">
+                    <h3 class="text-xs md:text-sm font-light tracking-[0.25em] text-gray-400 mb-12 text-center uppercase">Marcas que confían en nosotros</h3>
+                    <div class="flex flex-wrap justify-center items-center gap-8 md:gap-20 opacity-70">
+                        <div class="grayscale hover:grayscale-0 transition-all duration-500 cursor-pointer">
+                            <span class="font-bold text-lg md:text-xl text-black tracking-tighter">POLANOLA</span>
+                        </div>
+                        <div class="grayscale hover:grayscale-0 transition-all duration-500 cursor-pointer">
+                            <!-- OLIVIA Agregada -->
+                            <span class="font-bold text-2xl md:text-3xl text-black italic font-serif-custom">OLIVIA</span>
+                        </div>
+                        <div class="grayscale hover:grayscale-0 transition-all duration-500 cursor-pointer">
+                            <span class="font-extrabold text-lg md:text-xl text-black uppercase tracking-tight">Vanka</span>
+                        </div>
+                        <div class="grayscale hover:grayscale-0 transition-all duration-500 cursor-pointer">
+                            <span class="font-serif-custom text-xl md:text-2xl text-black">Bullben</span>
+                        </div>
+                        <div class="grayscale hover:grayscale-0 transition-all duration-500 cursor-pointer">
+                            <span class="font-light text-lg md:text-xl text-black tracking-[0.3em]">NOMADE</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resultados de Búsqueda (Oculto por defecto) -->
+        <div id="searchResults" class="hidden max-w-[1400px] mx-auto px-4 sm:px-6 py-8 md:py-12 fade-in">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end mb-10 border-b border-gray-100 pb-4">
+                <h2 class="text-xl md:text-2xl font-light text-gray-900">Resultados para "<span class="italic font-serif-custom">remera oversize negra</span>"</h2>
+                <span class="text-xs font-light text-gray-500 mt-2 sm:mt-0 uppercase tracking-[0.2em]">4 artículos</span>
+            </div>
+            
+            <!-- Grilla de Resultados (Tipografía Delicada) -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+                
+                <!-- Producto 1 (El Linkeado a OLIVIA) -->
+                <div class="group flex flex-col h-full">
+                    <a href="https://oliviashop.com.ar/productos/remeron-strass-4hfea/" target="_blank" rel="noopener noreferrer" class="relative block aspect-[3/4] overflow-hidden bg-gray-50 mb-4 cursor-pointer border border-transparent hover:border-gray-100 transition-colors">
+                        <img src="81-2dd571b8b16dc50c5617881938849960-1024-1024.webp" alt="Remerón Strass Olivia" class="w-full h-full object-cover object-top mix-blend-multiply group-hover:scale-105 transition-transform duration-700 ease-in-out">
+                        <div class="absolute top-2 left-2 md:top-3 md:left-3">
+                             <span class="inline-flex items-center px-2 py-1 rounded-sm bg-green-50/90 text-green-700 text-[8px] md:text-[9px] uppercase tracking-widest font-semibold border border-green-200/50 backdrop-blur-sm">
+                                <span class="w-1 h-1 rounded-full bg-green-500 mr-1.5 animate-pulse"></span>
+                                Stock: 3 min
+                            </span>
+                        </div>
+                    </a>
+                    <div class="flex flex-col flex-grow text-center">
+                        <p class="text-[9px] text-gray-400 tracking-[0.2em] uppercase mb-1.5">Olivia</p>
+                        <h3 class="text-xs md:text-sm font-light text-gray-800 mb-2 leading-relaxed">Remerón Strass</h3>
+                        <p class="text-sm md:text-base font-medium text-gray-900 mt-auto mb-4">$20.000,00</p>
+                        
+                        <!-- Link Interactivo a OliviaShop -->
+                        <a href="https://oliviashop.com.ar/productos/remeron-strass-4hfea/" target="_blank" rel="noopener noreferrer" class="block w-full py-2.5 px-4 border border-black bg-black text-white text-[9px] md:text-xs uppercase tracking-[0.15em] font-medium hover:bg-white hover:text-black transition-colors duration-300 flex items-center justify-center gap-2">
+                            Comprar
+                            <i data-lucide="external-link" class="w-3 h-3"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Producto 2 -->
+                <div class="group flex flex-col h-full">
+                    <div class="relative aspect-[3/4] overflow-hidden bg-gray-50 mb-4 cursor-pointer border border-transparent hover:border-gray-100 transition-colors">
+                        <img src="https://images.unsplash.com/photo-1618354691373-d851c5c3a990?q=80&w=800&auto=format&fit=crop" alt="Remerón Básico Negro" class="w-full h-full object-cover object-top mix-blend-multiply group-hover:scale-105 transition-transform duration-700 ease-in-out">
+                    </div>
+                    <div class="flex flex-col flex-grow text-center">
+                        <p class="text-[9px] text-gray-400 tracking-[0.2em] uppercase mb-1.5">Nomade</p>
+                        <h3 class="text-xs md:text-sm font-light text-gray-800 mb-2 leading-relaxed">Remerón Básico Premium</h3>
+                        <p class="text-sm md:text-base font-medium text-gray-900 mt-auto mb-4">$22.500</p>
+                        <button type="button" class="block w-full py-2.5 px-4 border border-gray-200 bg-white text-gray-900 text-[9px] md:text-xs uppercase tracking-[0.15em] font-medium hover:border-black transition-colors duration-300">
+                            Ver Tienda
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Producto 3 -->
+                <div class="group flex flex-col h-full">
+                    <div class="relative aspect-[3/4] overflow-hidden bg-gray-50 mb-4 cursor-pointer border border-transparent hover:border-gray-100 transition-colors">
+                        <img src="https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?q=80&w=800&auto=format&fit=crop" alt="T-Shirt Boxy Fit" class="w-full h-full object-cover object-top mix-blend-multiply group-hover:scale-105 transition-transform duration-700 ease-in-out">
+                    </div>
+                    <div class="flex flex-col flex-grow text-center">
+                        <p class="text-[9px] text-gray-400 tracking-[0.2em] uppercase mb-1.5">Vanka</p>
+                        <h3 class="text-xs md:text-sm font-light text-gray-800 mb-2 leading-relaxed">T-Shirt Boxy Fit Washed</h3>
+                        <p class="text-sm md:text-base font-medium text-gray-900 mt-auto mb-4">$28.900</p>
+                        <button type="button" class="block w-full py-2.5 px-4 border border-gray-200 bg-white text-gray-900 text-[9px] md:text-xs uppercase tracking-[0.15em] font-medium hover:border-black transition-colors duration-300">
+                            Ver Tienda
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Producto 4 -->
+                <div class="group flex flex-col h-full">
+                    <div class="relative aspect-[3/4] overflow-hidden bg-gray-50 mb-4 cursor-pointer border border-transparent hover:border-gray-100 transition-colors">
+                        <img src="https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?q=80&w=800&auto=format&fit=crop" alt="Remera Drop Shoulder" class="w-full h-full object-cover object-top mix-blend-multiply group-hover:scale-105 transition-transform duration-700 ease-in-out">
+                    </div>
+                    <div class="flex flex-col flex-grow text-center">
+                        <p class="text-[9px] text-gray-400 tracking-[0.2em] uppercase mb-1.5">Bullben</p>
+                        <h3 class="text-xs md:text-sm font-light text-gray-800 mb-2 leading-relaxed">Remera Drop Shoulder Clásica</h3>
+                        <p class="text-sm md:text-base font-medium text-gray-900 mt-auto mb-4">$24.000</p>
+                        <button type="button" class="block w-full py-2.5 px-4 border border-gray-200 bg-white text-gray-900 text-[9px] md:text-xs uppercase tracking-[0.15em] font-medium hover:border-black transition-colors duration-300">
+                            Ver Tienda
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-100 mt-auto py-16">
+        <div class="max-w-[1400px] mx-auto px-4 text-center">
+            <span class="text-2xl font-serif-custom text-gray-300 tracking-tight block mb-4">aimoda</span>
+            <p class="text-[10px] text-gray-400 font-light tracking-[0.2em] uppercase">&copy; 2026 aimoda. Prototipo Comercial.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Inicializar Iconos
+        lucide.createIcons();
+
+        // Lógica del Buscador
+        const searchForm = document.getElementById('searchForm');
+        const searchInput = document.getElementById('searchInput');
+        const searchStatus = document.getElementById('searchStatus');
+        const defaultContent = document.getElementById('defaultContent');
+        const searchResults = document.getElementById('searchResults');
+
+        function resetView() {
+            searchInput.value = '';
+            searchResults.classList.add('hidden');
+            searchStatus.classList.add('hidden');
+            searchStatus.classList.remove('flex');
+            defaultContent.classList.remove('hidden');
+        }
+
+        searchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const query = searchInput.value.trim().toLowerCase();
+            
+            if (query !== '') {
+                // Ocultar inicio y resultados anteriores
+                searchResults.classList.add('hidden');
+                defaultContent.classList.add('hidden');
+                
+                // Mostrar "Buscando"
+                searchStatus.classList.remove('hidden');
+                searchStatus.classList.add('flex');
+                
+                // Setear spinner
+                searchStatus.innerHTML = '<i data-lucide="loader-2" class="w-8 h-8 animate-spin text-[#C16642] mb-4"></i><p class="text-gray-500 font-light tracking-widest text-sm uppercase">Buscando prendas...</p>';
+                lucide.createIcons();
+                
+                // Simular delay de red
+                setTimeout(() => {
+                    if (query === 'remera oversize negra') {
+                        // Mostrar Resultados Exitosos
+                        searchStatus.classList.add('hidden');
+                        searchStatus.classList.remove('flex');
+                        searchResults.classList.remove('hidden');
+                        lucide.createIcons(); 
+                    } else {
+                        // Mostrar Error
+                        searchStatus.innerHTML = '<i data-lucide="search-x" class="w-8 h-8 text-gray-300 mb-4"></i><p class="text-gray-500 font-light tracking-[0.1em] text-sm uppercase text-center">No se encontraron resultados simulados.<br><span class="text-xs mt-3 block opacity-70 tracking-normal capitalize">(Para probar la demo, escribe "remera oversize negra")</span></p>';
+                        lucide.createIcons();
+                    }
+                }, 850);
+            } else {
+                resetView();
+            }
+        });
+    </script>
+</body>
+</html>
